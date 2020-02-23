@@ -2,12 +2,9 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
-##########################################
-#       
-##########################################
 
-def detectArTag(processedFrame,frame):
-    contours,hierarchy = cv2.findContours(processedFrame,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+def detectArTag(pf,frame):
+    contours,hierarchy = cv2.findContours(pf,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 
     l = []
     for i in range(len(hierarchy[0])):
@@ -29,6 +26,7 @@ def detectArTag(processedFrame,frame):
                     l.append(parentId)
                     l.append(i)
 
+                    # To be modified
                     #filter4 -> thresholding contours with areas
                     # areaOfChild = cv2.contourArea(contours[i])
                     # areaOfParent = cv2.contourArea(contours[parentId])
@@ -43,9 +41,20 @@ def detectArTag(processedFrame,frame):
 
     # hull= [cv2.convexHull(contours[i],False) for i in l]
     # cv2.drawContours(frame,hull,-1,(0,255,0),8)
-    filteredCountours = [contours[i] for i in l]
-    cv2.drawContours(frame,filteredCountours,-1,(0,0,255),3)
+    filteredContours = [contours[i] for i in l]
+    cv2.drawContours(frame,filteredContours,-1,(0,0,255),3)
+    return filteredContours
 
+
+def retrieveInfo():
+    pass
+
+def homography():
+    pass
+
+def processFrame(frame):
+    pf = preprocessing(frame)
+    tag = detectArTag(pf,frame)
 
 
 def preprocessing(img):
@@ -61,8 +70,7 @@ cap = cv2.VideoCapture('./data/Video_dataset/Tag0.mp4')
 while(cap.isOpened()):
     ret, frame = cap.read()
     frame = cv2.resize(frame, None,fx=0.5, fy=0.5, interpolation = cv2.INTER_CUBIC)
-    pf = preprocessing(frame)
-    detectArTag(pf,frame)
+    processFrame(frame)
 
     cv2.imshow('AR Tag',frame)
     if cv2.waitKey(0) & 0xFF == ord('q'):
