@@ -1,5 +1,5 @@
 import cv2
-
+import numpy as np
 # Reading a video file.
 # cap = cv2.VideoCapture('Tag1.mp4')
 # while(True):
@@ -32,7 +32,7 @@ import cv2
 # # make sure that you have saved it in the same folder 
 # # Averaging 
 # # You can change the kernel size as you want 
-# avging = cv2.blur(img,(2,2)) 
+# avging = cv2.blur(img,(10,10)) 
    
 # cv2.imshow('Averaging',avging) 
 # cv2.waitKey(0) 
@@ -164,3 +164,68 @@ import cv2
 # cv2.imshow('Contours', image) 
 # cv2.waitKey(0) 
 # cv2.destroyAllWindows() 
+
+def homography(world_coordinates, pixel_coodinates):
+    xw1 = world_coordinates[0]
+    xw2 = world_coordinates[1]
+    xw3 = world_coordinates[2]
+    xw4 = world_coordinates[3]
+    yw1 = world_coordinates[0]
+    yw2 = world_coordinates[1]
+    yw3 = world_coordinates[2]
+    yw4 = world_coordinates[3]
+
+    xc1 = pixel_coodinates[0]
+    xc2 = pixel_coodinates[1]
+    xc3 = pixel_coodinates[2]
+    xc4 = pixel_coodinates[3]
+    yc1 = pixel_coodinates[4]
+    yc2 = pixel_coodinates[5]
+    yc3 = pixel_coodinates[6]
+    yc4 = pixel_coodinates[7]
+
+    A = np.array([[-xw1, -yw1, -1, 0, 0, 0, xw1 * xc1, yw1 * xc1, xc1],
+              [0, 0, 0, -xw1, -yw1, -1, xw1 * yc1, yw1 * yc1, yc1],
+              [-xw2, -yw2, -1, 0, 0, 0, xw2 * xc2, yw2 * xc2, xc2],
+              [0, 0, 0, -xw2, -yw2, -1, xw2 * yc2, yw2 * yc2, yc2],
+              [-xw3, -yw3, -1, 0, 0, 0, xw3 * xc3, yw3 * xc3, xc3],
+              [0, 0, 0, -xw3, -yw3, -1, xw3 * yc3, yw3 * yc3, yc3],
+              [-xw4, -yw4, -1, 0, 0, 0, xw4 * xc4, yw4 * xc4, xc4],
+              [0, 0, 0, -xw4, -yw4, -1, xw4 * yc4, yw4 * yc4, yc4], ])
+
+    [u, sigma, v] = svd(A)
+
+    homography_matrix = v[1:9,9:9]/v[9,9]
+    homography_matrix = np.reshape((3,3))
+
+    return homography_matrix
+
+def projectionMatrix(homographyMatrix):
+    intrinsicParameters =np.array([1406.08415449821,0,0],
+                                  [2.20679787308599, 1417.99930662800,0],
+                                  [1014.13643417416, 566.347754321696,1])
+
+    intrinsicParameters = np.transpose()
+
+    B = np.matmul(np.inv(intrinsicParameters), homographyMatrix)
+    if np.linalg.det(B) < 0:
+        B = -1*B
+    
+    magnitude1 = np.linalg.norm(np.matmul(np.inv(intrinsicParameters),homographyMatrix[:,0]))
+    magnitude2 = np.linalg.norm(np.matmul(np.inv(intrinsicParameters),homographyMatrix[:,1]))
+    lamda = ((magnitude1 + magnitude2)/2)**-1
+    r1 = lamda*B[:,0]
+    r2 = lamda*B[:,1]
+    r3 = np.cross(r1, r2)
+    t =  lamda*B[:,2]
+
+    projection_matrix = np.matmul(intrinsicParameters, np.stack(r1,r2,r3,t))
+
+    return projection_matrix
+
+
+
+
+
+
+
