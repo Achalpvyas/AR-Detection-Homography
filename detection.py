@@ -67,23 +67,24 @@ def retrieveInfo():
 
 # To compute homography between world and camera coordinates
 def homography(world_coordinates, pixel_coodinates):
-    xw1 = world_coordinates[0]
-    xw2 = world_coordinates[1]
-    xw3 = world_coordinates[2]
-    xw4 = world_coordinates[3]
-    yw1 = world_coordinates[4]
-    yw2 = world_coordinates[5]
-    yw3 = world_coordinates[6]
-    yw4 = world_coordinates[7]
+    print(np.shape(world_coordinates))
+    xw1 = world_coordinates[0,0]
+    xw2 = world_coordinates[1,0]
+    xw3 = world_coordinates[2,0]
+    xw4 = world_coordinates[3,0]
+    yw1 = world_coordinates[0,1]
+    yw2 = world_coordinates[1,1]
+    yw3 = world_coordinates[2,1]
+    yw4 = world_coordinates[3,1]
 
-    xc1 = pixel_coodinates[0]
-    xc2 = pixel_coodinates[1]
-    xc3 = pixel_coodinates[2]
-    xc4 = pixel_coodinates[3]
-    yc1 = pixel_coodinates[4]
-    yc2 = pixel_coodinates[5]
-    yc3 = pixel_coodinates[6]
-    yc4 = pixel_coodinates[7]
+    xc1 = pixel_coodinates[0,0]
+    xc2 = pixel_coodinates[1,0]
+    xc3 = pixel_coodinates[2,0]
+    xc4 = pixel_coodinates[3,0]
+    yc1 = pixel_coodinates[0,1]
+    yc2 = pixel_coodinates[1,1]
+    yc3 = pixel_coodinates[2,1]
+    yc4 = pixel_coodinates[3,1]
 
     A = np.array([[-xw1, -yw1, -1, 0, 0, 0, xw1 * xc1, yw1 * xc1, xc1],
               [0, 0, 0, -xw1, -yw1, -1, xw1 * yc1, yw1 * yc1, yc1],
@@ -94,10 +95,10 @@ def homography(world_coordinates, pixel_coodinates):
               [-xw4, -yw4, -1, 0, 0, 0, xw4 * xc4, yw4 * xc4, xc4],
               [0, 0, 0, -xw4, -yw4, -1, xw4 * yc4, yw4 * yc4, yc4], ])
 
-    [u, sigma, v] = svd(A)
-
-    homography_matrix = v[:,8]/v[8,8]
-    homography_matrix = np.reshape((3,3))
+    [u, sigma, v] =  np.linalg.svd(A)
+   
+    homography_matrix = v[8,:]/v[8,8]
+    homography_matrix = np.reshape(homography_matrix, (3,3))
 
     return homography_matrix
 
@@ -122,32 +123,23 @@ def projectionMatrix(homographyMatrix):
     t =  lamda*B[:,2]
 
     projection_matrix = np.matmul(intrinsicParameters, np.stack(r1,r2,r3,t))
-
     return projection_matrix
 
 
 
 def warpFrame(p1,p2,frame):
-    # cv2.imshow("Perspective",frame)
-    print(p1)
-    c1 = tuple(p1[0]) 
-    c2 = tuple(p1[1])
+    hmat = homography(p1,p2)
     matrix =  cv2.getPerspectiveTransform(p1,p2)
-    result = cv2.warpPerspective(frame,matrix,(200,200))
-    cv2.circle(frame,c1, 5, (0, 0, 255), -1)
-    # cv2.circle(frame,c2, 5, (0, 0, 255), -1)
+    result = cv2.warpPerspective(frame,hmat,(200,200))
     cv2.imshow("perspective",result)
 
 
 def processFrame(frame):
     pf = preprocessing(frame)
     tagCoordinates = detectArTag(pf,frame)
-    
     desiredCoordinates =  np.float32([[0,0],[200,0],[0,200],[200,200]])
-    print(desiredCoordinates)
     warpFrame(tagCoordinates[1],desiredCoordinates,frame)
     
-
 
 def preprocessing(img):
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
@@ -155,7 +147,6 @@ def preprocessing(img):
     edges = cv2.Canny(blur,100,200)
     # _,thresh = cv2.threshold(blurred,127,255,cv2.THRESH_BINARY)
     return edges 
-
 
 
 cap = cv2.VideoCapture('./data/Video_dataset/Tag0.mp4')
