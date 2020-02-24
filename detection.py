@@ -7,6 +7,7 @@ def detectArTag(pf,frame):
     contours,hierarchy = cv2.findContours(pf,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 
     l = []
+    corners = []
     for i in range(len(hierarchy[0])):
 
         #filter1->look for contours with parent
@@ -14,17 +15,19 @@ def detectArTag(pf,frame):
        if(hierarchy[0][i][3] != -1):
 
             #filter2->look for contours with more than 4 corners(inner portion)
-            perimeter = cv2.arcLength(contours[i], True)
-            approx = cv2.approxPolyDP(contours[i], 0.02 * perimeter, True)
-            if(len(approx)>4):
+            perimeter1 = cv2.arcLength(contours[i], True)
+            approx1 = cv2.approxPolyDP(contours[i], 0.02 * perimeter1, True)
+            if(len(approx1)>4):
 
                 #filter3-> look for contours with quadilateral parents
                 parentId = hierarchy[0][i][3]
-                perimeter = cv2.arcLength(contours[parentId],True)
-                approx =cv2.approxPolyDP(contours[parentId],0.02*perimeter,True)
-                if(len(approx)==4):
-                    l.append(parentId)
-                    l.append(i)
+                perimeter2 = cv2.arcLength(contours[parentId],True)
+                approx2 =cv2.approxPolyDP(contours[parentId],0.02*perimeter2,True)
+                if(len(approx2)==4):
+                        l.append(i)
+                        l.append(parentId)
+                        corners.append(approx1)
+                        corners.append(approx2)
 
                     # To be modified
                     #filter4 -> thresholding contours with areas
@@ -43,7 +46,7 @@ def detectArTag(pf,frame):
     # cv2.drawContours(frame,hull,-1,(0,255,0),8)
     filteredContours = [contours[i] for i in l]
     cv2.drawContours(frame,filteredContours,-1,(0,0,255),3)
-    return filteredContours
+    return corners 
 
 
 def retrieveInfo():
