@@ -129,34 +129,22 @@ def projectionMatrix(homographyMatrix):
 def retrieveInfo(warpedtag):
     pass
 
-def to_img(mtr):
-    V,H,C = mtr.shape
-    img = np.zeros((H,V,C), dtype='int')
-    for i in range(mtr.shape[0]):
-        img[:,i] = mtr[i]
-        
-    return img
-
 def warpFrame(frame,H,dsize,dc):
     # result = cv2.warpPerspective(frame,H,(200,200))
     minPt = (np.amin(dc,axis=0)).astype(int)
     maxPt = (np.amax(dc,axis=0)).astype(int)
-    print(minPt)
-    print(maxPt)
-    print(dc)
-    result = np.zeros((dsize[0],dsize[1],frame.shape[2]),dtype ='int')
-    for i in range(minPt[1],maxPt[1]+1):
-        for j in range(minPt[0],maxPt[0]+1):
-            imageCoor = H.dot([j,i,1])
-            hj,hi,_= (imageCoor/imageCoor[2]).astype(int)
+
+    result = np.zeros((dsize[0],dsize[1],frame.shape[2]),dtype ='float32')
+    for i in range(minPt[0],maxPt[0]+1):
+        for j in range(minPt[1],maxPt[1]+1):
+            imageCoor = H.dot([i,j,1])
+            hi,hj,_= (imageCoor/imageCoor[2]).astype(int)
             # cv2.circle(frame,(j,i),5,(0,255,0),5)
             if(hi>=0 and hi< dsize[0] and hj>=0 and hj<dsize[1]):
-                result[hj,hi] = frame[i,j]
+                result[hi,hj] = frame[j,i]
    
-    print(result)
-    result = np.float32(result)
     cv2.imshow("perspective",result)
-    return to_img(result)
+    return result
 
 
 def processFrame(frame):
