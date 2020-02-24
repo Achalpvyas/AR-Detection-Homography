@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from detection import processFrame
 # Reading a video file.
 # cap = cv2.VideoCapture('Tag0.mp4')
 # while(True):
@@ -168,23 +169,24 @@ import numpy as np
 
 # To compute homography between world and camera coordinates
 def homography(world_coordinates, pixel_coodinates):
-    xw1 = world_coordinates[0]
-    xw2 = world_coordinates[1]
-    xw3 = world_coordinates[2]
-    xw4 = world_coordinates[3]
-    yw1 = world_coordinates[4]
-    yw2 = world_coordinates[5]
-    yw3 = world_coordinates[6]
-    yw4 = world_coordinates[7]
+    print(np.shape(world_coordinates))
+    xw1 = world_coordinates[0,0]
+    xw2 = world_coordinates[1,0]
+    xw3 = world_coordinates[2,0]
+    xw4 = world_coordinates[3,0]
+    yw1 = world_coordinates[0,1]
+    yw2 = world_coordinates[1,1]
+    yw3 = world_coordinates[2,1]
+    yw4 = world_coordinates[3,1]
 
-    xc1 = pixel_coodinates[0]
-    xc2 = pixel_coodinates[1]
-    xc3 = pixel_coodinates[2]
-    xc4 = pixel_coodinates[3]
-    yc1 = pixel_coodinates[4]
-    yc2 = pixel_coodinates[5]
-    yc3 = pixel_coodinates[6]
-    yc4 = pixel_coodinates[7]
+    xc1 = pixel_coodinates[0,0]
+    xc2 = pixel_coodinates[1,0]
+    xc3 = pixel_coodinates[2,0]
+    xc4 = pixel_coodinates[3,0]
+    yc1 = pixel_coodinates[0,1]
+    yc2 = pixel_coodinates[1,1]
+    yc3 = pixel_coodinates[2,1]
+    yc4 = pixel_coodinates[3,1]
 
     A = np.array([[-xw1, -yw1, -1, 0, 0, 0, xw1 * xc1, yw1 * xc1, xc1],
               [0, 0, 0, -xw1, -yw1, -1, xw1 * yc1, yw1 * yc1, yc1],
@@ -195,90 +197,105 @@ def homography(world_coordinates, pixel_coodinates):
               [-xw4, -yw4, -1, 0, 0, 0, xw4 * xc4, yw4 * xc4, xc4],
               [0, 0, 0, -xw4, -yw4, -1, xw4 * yc4, yw4 * yc4, yc4], ])
 
-    [u, sigma, v] = svd(A)
+    [u, sigma, v] =  np.linalg.svd(A)
 
     homography_matrix = v[:,8]/v[8,8]
-    homography_matrix = np.reshape((3,3))
+    print(homography_matrix)
+    homography_matrix = np.reshape(homography_matrix, (3,3))
 
     return homography_matrix
 
 # For camera pose estimation
 def projectionMatrix(homographyMatrix):
-    intrinsicParameters =np.array([1406.08415449821,0,0],
+    intrinsicParameters =np.array([[1406.08415449821,0,0],
                                   [2.20679787308599, 1417.99930662800,0],
-                                  [1014.13643417416, 566.347754321696,1])
+                                  [1014.13643417416, 566.347754321696,1]])
 
-    intrinsicParameters = np.transpose()
+    intrinsicParameters = np.transpose(intrinsicParameters)
 
-    B = np.matmul(np.inv(intrinsicParameters), homographyMatrix)
+    B = np.matmul(np.linalg.inv(intrinsicParameters), homographyMatrix)
     if np.linalg.det(B) < 0:
         B = -1*B
     
-    magnitude1 = np.linalg.norm(np.matmul(np.inv(intrinsicParameters),homographyMatrix[:,0]))
-    magnitude2 = np.linalg.norm(np.matmul(np.inv(intrinsicParameters),homographyMatrix[:,1]))
+    magnitude1 = np.linalg.norm(np.matmul(np.linalg.inv(intrinsicParameters),homographyMatrix[:,0]))
+    magnitude2 = np.linalg.norm(np.matmul(np.linalg.inv(intrinsicParameters),homographyMatrix[:,1]))
     lamda = ((magnitude1 + magnitude2)/2)**-1
     r1 = lamda*B[:,0]
     r2 = lamda*B[:,1]
     r3 = np.cross(r1, r2)
     t =  lamda*B[:,2]
 
-    projection_matrix = np.matmul(intrinsicParameters, np.stack(r1,r2,r3,t))
+    projection_matrix = np.matmul(intrinsicParameters, np.stack((r1,r2,r3,t)).T)
 
     return projection_matrix
 
-# Function for detecting and highlighting edges
-def detectingCorners(video):
-    # for i in range(0,frames.shape[0]):
-    #     for j in range(0, frames.shape[1]):
-    #         if i == 0 or j == 0 or i == frames.shape[0] - 1 or j == frames.shape[1] - 1:
-    #             frames[i,j] = [255, 255, 255]           
-    cap = cv2.VideoCapture(video)
-    while(True):
-        status, frames = cap.read() 
-        framesGray = cv2.cvtColor(frames,cv2.COLOR_BGR2GRAY)
-        # cv2.imshow('gray',framesGray)
-        # cv2.waitKey(0)
-        # edged = cv2.Canny(framesGray, 30 , 255) 
-        corners = cv2.cornerHarris(framesGray,2,3,0.03)
-        # print(corners[0,0])
-        # for i in range(0,frames.shape[0]):
-        #     for j in range(0, frames.shape[1]):
-        #         if i != 0 and j != 0 and i != frames.shape[0] - 1 and j != frames.shape[1]:
-        #             if frames[i,j+1] = 
-        frames[corners>0.01*corners.max()]=[0,0,255]
-        cv2.imshow('dst',frames)
-        if cv2.waitKey(1) & 0xff == 27:
-            break
-    cap.release()
-    cv2.destroyAllWindows()
-        # print(corners)
+def Cube3D(proj_mat,image):
+    axis = np.float32([[0,0,0,1],[0,512,0,1],[512,512,0,1],[512,0,0,1],[0,0,-512,1],[0,512,-512,1],[512,512,-512,1],[512,0,-512,1]])
+    Proj= np.matmul(axis,proj_mat.T)
+    # Normalize the matrix
+    Norm1 = np.divide(Proj[0],Proj[0][2])
+    Norm2 = np.divide(Proj[1],Proj[1][2])
+    Norm3 = np.divide(Proj[2],Proj[2][2])
+    Norm4 = np.divide(Proj[3],Proj[3][2])
+    Norm5 = np.divide(Proj[4],Proj[4][2])
+    Norm6 = np.divide(Proj[5],Proj[5][2])
+    Norm7 = np.divide(Proj[6],Proj[6][2])
+    Norm8 = np.divide(Proj[7],Proj[7][2])
 
-    # return ctr
-# def Edgedetection(image,old_ctr):
-#     gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
-#     edged = cv2.Canny(gray, 30 , 255) 
-#     # blurred = cv2.medianBlur(gray,3)
-#     # (T, thresh) = cv2.threshold(blurred, 180, 255, cv2.THRESH_BINARY)
-#     contours, hierarchy=cv2.findContours(edged, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-#     cv2.imshow('contours',edged)
-#     cv2.waitKey(0)
-#     cv2.drawContours(image, contours, -1, (0, 255, 0), 3) 
-#     cv2.imshow('Contours', image)
-#     cv2.waitKey(0)
-#     # ctr=[]
-#     # for j, cnt in zip(hierarchy[0], contours):
-#     #     cnt_len = cv2.arcLength(cnt,True)
-#     #     cnt = cv2.approxPolyDP(cnt, 0.02*cnt_len,True)
-#     #     if cv2.contourArea(cnt) > 1000 and cv2.isContourConvex(cnt) and len(cnt) == 4  :
-#     #         cnt=cnt.reshape(-1,2)
-#     #         if j[0] == -1 and j[1] == -1 and j[3] != -1:
-#     #             ctr.append(cnt)
-#     #     old_ctr=ctr
-#     # return ctr
+    points = np.vstack((Norm1,Norm2,Norm3,Norm4,Norm5,Norm6,Norm7,Norm8))
+    final_2d=np.delete(points,2, axis=1)
+    draw(image,final_2d)
+    return image
+
+def draw(img, imgpts):
+    imgpts = np.int32(imgpts)
+    # draw ground floor in green
+    img = cv2.drawContours(img, [imgpts[:4]],-1,(255,0,0),-3)
+    # draw pillars in blue color
+    for i,j in zip(range(4),range(4,8)):
+        img = cv2.line(img, tuple(imgpts[i]), tuple(imgpts[j]),(0,150,150),3)
+        # draw top layer in red color
+        img = cv2.drawContours(img, [imgpts[4:]],-1,(0,0,255),3)
+    cv2.waitKey(0)
+    return img
+
+
+
 
 img = cv2.imread('ref_marker.png')
-detectingCorners('Tag1.mp4')
-# Edgedetection(img,0)
+#corners = processFrame(img)
+
+cap = cv2.VideoCapture('Tag1.mp4')
+while(True):
+    # Capture frame-by-frame
+    ret, frame = cap.read()
+    #print(frame)
+    # Our operations on the frame come here
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    # Display the resulting frame
+    src=cv2.imread('lena.jpg')
+    # img = cv2.imread(frame)
+    if len(processFrame(frame)) != 0:
+        corners = processFrame(frame)
+        if len(corners) == 0:
+            continue
+        #pts_dst = np.array(corners[1])
+        pts_src = np.array([[511, 511],[0,511],[0,0],[511, 0]],dtype=float)
+        h = homography(pts_src,corners[1])
+        proj_mat = projectionMatrix(h)
+        image=Cube3D(proj_mat,frame)
+        cv2.imshow('cube',image)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+    else:
+        continue
+
+# When everything done, release the capture
+cap.release()
+cv2.destroyAllWindows()
+
+
 
 
 
