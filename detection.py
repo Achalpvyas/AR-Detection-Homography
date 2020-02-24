@@ -8,6 +8,7 @@ def detectArTag(pf,frame):
 
     l = []
     corners = []
+    detectedCorners = np.zeros((2,1))
     for i in range(len(hierarchy[0])):
 
         #filter1->look for contours with parent
@@ -46,8 +47,16 @@ def detectArTag(pf,frame):
     # cv2.drawContours(frame,hull,-1,(0,255,0),8)
     filteredContours = [contours[i] for i in l]
     cv2.drawContours(frame,filteredContours,-1,(0,0,255),3)
-    return corners 
-
+   
+    if(len(corners)!=2):
+        return None
+    
+    outertag = np.float32(corners[1])
+    outertag = outertag[:,0,:]
+    innertag = np.float32(corners[0])
+    innertag = innertag[:,0,:]
+    
+    return [innertag,outertag]
 
 def retrieveInfo():
     pass
@@ -113,10 +122,37 @@ def projectionMatrix(homographyMatrix):
 
     return projection_matrix
 
+
+
+def warpFrame(p1,p2,frame):
+    print(p1)
+    # warpFrame(artagOuterCoordinates,desiredCoordinates,frame)
+    # print(p1[1][0][0])
+    # print(p1[1])
+    # print(p1)
+
+    # c1 = (p1[1][0][0],p1[1][0][1])
+    # c2 = (p1[1][0][0],p1[1][1][1])
+
+    # cv2.imshow("Perspective",frame)
+    
+    # matrix =  cv2.getPerspectiveTransform(p1,p2)
+    # result = cv2.warpPerspective(frame,matrix,(200,200))
+    # cv2.circle(frame,c1, 5, (0, 0, 255), -1)
+    # cv2.circle(frame,c2, 5, (0, 0, 255), -1)
+    # cv2.imshow("perspective",result)
+    pass
+
+
 def processFrame(frame):
     pf = preprocessing(frame)
-    tag = detectArTag(pf,frame)
-
+    tagCoordinates = detectArTag(pf,frame)
+    
+    desiredCoordinates =  np.float32([[0,0],[200,0],[0,200],[200,200]])
+    
+    warpFrame(tagCoordinates[1],desiredCoordinates,frame)
+    
+    
 
 def preprocessing(img):
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
@@ -153,14 +189,6 @@ cv2.destroyAllWindows()
 
 # gray = np.float32(gray)
 # canny = cv2.Canny(img,100,200)
-
-
-
-
-
-
-
-
 
 
 # erode =cv2.erode(thresh,None, iterations=3)
