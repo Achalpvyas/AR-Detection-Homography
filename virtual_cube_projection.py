@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 # Reading a video file.
-# cap = cv2.VideoCapture('Tag1.mp4')
+# cap = cv2.VideoCapture('Tag0.mp4')
 # while(True):
 #     # Capture frame-by-frame
 #     ret, frame = cap.read()
@@ -165,6 +165,8 @@ import numpy as np
 # cv2.waitKey(0) 
 # cv2.destroyAllWindows() 
 
+
+# To compute homography between world and camera coordinates
 def homography(world_coordinates, pixel_coodinates):
     xw1 = world_coordinates[0]
     xw2 = world_coordinates[1]
@@ -195,11 +197,12 @@ def homography(world_coordinates, pixel_coodinates):
 
     [u, sigma, v] = svd(A)
 
-    homography_matrix = v[1:9,9:9]/v[9,9]
+    homography_matrix = v[:,8]/v[8,8]
     homography_matrix = np.reshape((3,3))
 
     return homography_matrix
 
+# For camera pose estimation
 def projectionMatrix(homographyMatrix):
     intrinsicParameters =np.array([1406.08415449821,0,0],
                                   [2.20679787308599, 1417.99930662800,0],
@@ -223,6 +226,59 @@ def projectionMatrix(homographyMatrix):
 
     return projection_matrix
 
+# Function for detecting and highlighting edges
+def detectingCorners(video):
+    # for i in range(0,frames.shape[0]):
+    #     for j in range(0, frames.shape[1]):
+    #         if i == 0 or j == 0 or i == frames.shape[0] - 1 or j == frames.shape[1] - 1:
+    #             frames[i,j] = [255, 255, 255]           
+    cap = cv2.VideoCapture(video)
+    while(True):
+        status, frames = cap.read() 
+        framesGray = cv2.cvtColor(frames,cv2.COLOR_BGR2GRAY)
+        # cv2.imshow('gray',framesGray)
+        # cv2.waitKey(0)
+        # edged = cv2.Canny(framesGray, 30 , 255) 
+        corners = cv2.cornerHarris(framesGray,2,3,0.03)
+        # print(corners[0,0])
+        # for i in range(0,frames.shape[0]):
+        #     for j in range(0, frames.shape[1]):
+        #         if i != 0 and j != 0 and i != frames.shape[0] - 1 and j != frames.shape[1]:
+        #             if frames[i,j+1] = 
+        frames[corners>0.01*corners.max()]=[0,0,255]
+        cv2.imshow('dst',frames)
+        if cv2.waitKey(1) & 0xff == 27:
+            break
+    cap.release()
+    cv2.destroyAllWindows()
+        # print(corners)
+
+    # return ctr
+# def Edgedetection(image,old_ctr):
+#     gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+#     edged = cv2.Canny(gray, 30 , 255) 
+#     # blurred = cv2.medianBlur(gray,3)
+#     # (T, thresh) = cv2.threshold(blurred, 180, 255, cv2.THRESH_BINARY)
+#     contours, hierarchy=cv2.findContours(edged, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+#     cv2.imshow('contours',edged)
+#     cv2.waitKey(0)
+#     cv2.drawContours(image, contours, -1, (0, 255, 0), 3) 
+#     cv2.imshow('Contours', image)
+#     cv2.waitKey(0)
+#     # ctr=[]
+#     # for j, cnt in zip(hierarchy[0], contours):
+#     #     cnt_len = cv2.arcLength(cnt,True)
+#     #     cnt = cv2.approxPolyDP(cnt, 0.02*cnt_len,True)
+#     #     if cv2.contourArea(cnt) > 1000 and cv2.isContourConvex(cnt) and len(cnt) == 4  :
+#     #         cnt=cnt.reshape(-1,2)
+#     #         if j[0] == -1 and j[1] == -1 and j[3] != -1:
+#     #             ctr.append(cnt)
+#     #     old_ctr=ctr
+#     # return ctr
+
+img = cv2.imread('ref_marker.png')
+detectingCorners('Tag1.mp4')
+# Edgedetection(img,0)
 
 
 
