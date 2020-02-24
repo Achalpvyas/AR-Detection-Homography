@@ -50,9 +50,12 @@ def detectArTag(pf,frame):
    
     if(len(corners)!=2):
         return None
-    
+   
     outertag = np.float32(corners[1])
     outertag = outertag[:,0,:]
+    idx=np.argsort(np.sum(outertag,axis = 1))
+    outertag = outertag[idx]
+
     innertag = np.float32(corners[0])
     innertag = innertag[:,0,:]
     
@@ -125,23 +128,15 @@ def projectionMatrix(homographyMatrix):
 
 
 def warpFrame(p1,p2,frame):
-    print(p1)
-    # warpFrame(artagOuterCoordinates,desiredCoordinates,frame)
-    # print(p1[1][0][0])
-    # print(p1[1])
-    # print(p1)
-
-    # c1 = (p1[1][0][0],p1[1][0][1])
-    # c2 = (p1[1][0][0],p1[1][1][1])
-
     # cv2.imshow("Perspective",frame)
-    
-    # matrix =  cv2.getPerspectiveTransform(p1,p2)
-    # result = cv2.warpPerspective(frame,matrix,(200,200))
-    # cv2.circle(frame,c1, 5, (0, 0, 255), -1)
+    print(p1)
+    c1 = tuple(p1[0]) 
+    c2 = tuple(p1[1])
+    matrix =  cv2.getPerspectiveTransform(p1,p2)
+    result = cv2.warpPerspective(frame,matrix,(200,200))
+    cv2.circle(frame,c1, 5, (0, 0, 255), -1)
     # cv2.circle(frame,c2, 5, (0, 0, 255), -1)
-    # cv2.imshow("perspective",result)
-    pass
+    cv2.imshow("perspective",result)
 
 
 def processFrame(frame):
@@ -149,10 +144,10 @@ def processFrame(frame):
     tagCoordinates = detectArTag(pf,frame)
     
     desiredCoordinates =  np.float32([[0,0],[200,0],[0,200],[200,200]])
-    
+    print(desiredCoordinates)
     warpFrame(tagCoordinates[1],desiredCoordinates,frame)
     
-    
+
 
 def preprocessing(img):
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
@@ -160,6 +155,7 @@ def preprocessing(img):
     edges = cv2.Canny(blur,100,200)
     # _,thresh = cv2.threshold(blurred,127,255,cv2.THRESH_BINARY)
     return edges 
+
 
 
 cap = cv2.VideoCapture('./data/Video_dataset/Tag0.mp4')
