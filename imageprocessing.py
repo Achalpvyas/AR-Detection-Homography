@@ -154,8 +154,7 @@ def retrieveInfo(warpedtag):
 
 
 def warpFrame(frame,H,dsize,dc):
-    result = cv2.warpPerspective(frame,H,(200,200))
-
+    print("i am eashwar")
     minPt = (np.amin(dc,axis=0)).astype(int)
     maxPt = (np.amax(dc,axis=0)).astype(int)
 
