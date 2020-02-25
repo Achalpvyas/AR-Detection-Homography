@@ -17,7 +17,6 @@ def processFrame(frame):
         warpedtag = warpFrame(frame,hmat,(200,200),tagCoordinates[1])
 
         tagId = retrieveInfo(warpedtag) 
-        print(tagId)
         tagstr = "tag detected - " + ''.join(str(e) for e in tagId)
         cv2.putText(frame,tagstr,(280,40),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
     cv2.imshow('AR Tag',frame)
@@ -35,7 +34,7 @@ while(cap.isOpened()):
 
     processFrame(frame)
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    if cv2.waitKey(0) & 0xFF == ord('q'):
         break
 
 cap.release()
