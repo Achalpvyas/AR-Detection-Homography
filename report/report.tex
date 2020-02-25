@@ -1,0 +1,150 @@
+\documentclass[12pt]{article}
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\graphicspath{{images/}}
+
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ total={170mm,257mm},
+ left=20mm,
+ top=20mm,
+ }
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Problem1- Detection}
+We need to encode the given AR tag which is represented in 8x8 grid by detecting the innermost 2x2 grid to get the tag id which should be affected by the camera rotation.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=6cm]{artaggrid}
+    \caption{Grid view of AR tag}
+    \label{fig:artaggrid}
+\end{figure}
+\subsection{Procedure followed to solve Problem 1:}
+\begin{enumerate}
+\item First we need the compute homography matrix of the corners of the AR tag to warp the image. Homography is done is using the
+\begin{equation}
+homography(worldcoordinates, pixelcoordinates)
+\end{equation}
+function in the python file which uses the inbuild $svd()$ function to get the required vector. The n normalizing the obtained vector and reshaping it to 3x3 matrix to get the homography matrix.
+We have verified the coded homography matrix with in-build functions and got the same results.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=12cm]{homography}
+    \caption{Homography matrix verification}
+    \label{fig:homography}
+\end{figure}
+
+\item After finding the homography matrix, we warped the AR tag image by multiplying every pixel with the homography matrix. We did not get perfect results in this part as there were white spots(holes) in the picture. 
+
+\item After warping, we encoded the tag for our id by performing operations on inner 2x2 grid. Given below are the comparisons of the output images got using running opencv function and our warping function.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=8cm]{warping_coded}
+    \caption{Output from developed warping function}
+    \label{fig:warping_coded}
+\end{figure}
+When we use Opencv we got better results
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=8cm]{warping_opencv}
+    \caption{Output from inbuilt opencv function}
+    \label{fig:warping_coded}
+\end{figure}
+\begin{center}
+    1 represents the least significant bit\\
+    4 represents the most significant bit \\
+    Tag id is calculated in clockwise direction starting from 1 to 4
+\end{center}
+\item The snippets of the video is given below. The snippet shows the tag id in blue color.
+\newpage
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{tag_id_outputvideo0}
+    \caption{Tag id detection for video Tag1}
+    \label{fig:Tag id output}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{tag_id_outputvideo1}
+    \caption{Tag id detection for video Tag0}
+    \label{fig:Tag id output}
+\end{figure}
+
+\end{enumerate}
+
+
+
+\section{Problem2 - Tracking}
+\subsection{Problem 2a - Superimposing an image onto the tag}
+\subsection{Procedure for solving problem }
+\begin{enumerate}
+\item First from problem 1, we obtained four corners of the AR tag. We used those AR tag corner coordinates and performed homography between corners of the Lena image and AR tag corners.
+\item $homography(worldcoordinates, pixelcoodinates)$ in detection.py python file is used to compute the homography. The function takes 2 list as arguments and returns a 3x3 homography matrix.The Lena image corners were obtained $shape()$ function in opencv which gives the $[height, width]$ of the image.
+
+
+\item After performing homography, we developed a $warping()$ function which warps all the pixels of Lena image onto the ARtag by multiplying each pixel with the homography matrix. First, the image is placed in correct orientation of the tag and then warped.
+
+\item The following are the output snippets of the tag being superimposed on AR tag on different videos.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{Tag0_videooutput}
+    \caption{Superimposing Lena onto AR tag on Tag0 video}
+    \label{fig:video frame output}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{Tag1_videooutput}
+    \caption{Superimposing Lena onto AR tag on Tag1 video}
+    \label{fig:video frame output}
+\end{figure}
+\newpage
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{Tag2_videooutput}
+    \caption{Superimposing Lena onto AR tag on Tag2 video}
+    \label{fig:video frame output}
+\end{figure}
+\end{enumerate}
+
+\subsection{Problem 2(b) - Placing a virtual cube on the tag}
+\subsection{Procedure for solving problem }
+\begin{enumerate}
+\item First we computed the homography between the world coordinates and image plane of the AR tag.
+
+\item Next we coded for obtaining the projection matrix from the homography matrix.
+
+\item Then we wrapped the world coordinates of the AR tag onto the image plane. 
+
+\item Then we found out the projection matrix from the homography matrix.
+
+\item Then we project the 8 3-D cube coordinates of the cube onto the image plane by multiplying with the projection matrix and converting it into the homogenous coordinates by dividing the 3-D point with its z-coordinate.
+
+\item The following are the snippets of output from three videos.
+\end{enumerate}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=6cm]{Tag0_cube}
+    \caption{3D cube superimpose on Tag0 video}
+    \label{fig:video frame output}
+\end{figure}
+\newpage
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=8cm]{Tag1_cube}
+    \caption{3D cube superimpose on Tag1 video}
+    \label{fig:video frame output}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=8cm]{Tag2_cube}
+    \caption{3D cube superimpose on Tag2 video}
+    \label{fig:video frame output}
+\end{figure}
+\end{document}
