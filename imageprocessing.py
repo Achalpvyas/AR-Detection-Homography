@@ -49,11 +49,18 @@ def detectArTag(pf,frame):
    
     if(len(corners)!=2):
         return None
-   
+  
+    #orientation of tag
     outertag = np.float32(corners[1])
     outertag = outertag[:,0,:]
-    idx=np.argsort(np.sum(outertag,axis = 1))
+    print(outertag)
+
+    h = np.sum(outertag,axis = 1)
+    d = np.diff(outertag,axis =1)
+    idx = [np.argmin(h),np.argmin(d),np.argmax(d),np.argmax(h)]
     outertag = outertag[idx]
+    print(outertag)
+
 
     innertag = np.float32(corners[0])
     innertag = innertag[:,0,:]
@@ -96,7 +103,7 @@ def homography(world_coordinates, pixel_coodinates):
    
     homography_matrix = v[8,:]/v[8,8]
     homography_matrix = np.reshape(homography_matrix, (3,3))
-
+      
     return homography_matrix
 
 
@@ -127,12 +134,16 @@ def projectionMatrix(homographyMatrix):
 def retrieveInfo(warpedtag):
     _,thresh = cv2.threshold(warpedtag,220,255,cv2.THRESH_BINARY)
 
-    region1 = 1 if(thresh[82,83][2] == 255) else 0
-    region2 = 1 if(thresh[112,82][2] == 255) else 0
-    region3 = 1 if(thresh[84,116][2] == 255) else 0
-    region4 = 1 if(thresh[112,115][2] == 255) else 0
+     
+    region1 = 1 if(thresh[83,82][2] == 255) else 0
+    region2 = 1 if(thresh[82,112][2] == 255) else 0
+    region3 = 1 if(thresh[116,84][2] == 255) else 0
+    region4 = 1 if(thresh[115,116][2] == 255) else 0
+  
+
 
     if(thresh[60,56][2] == 255): #upper left corner
+        cv2.circle(thresh,(56,60),5,(255,0,255),10)
         cv2.putText(thresh,'2',(82,83),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
         cv2.putText(thresh,'1',(112,82),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
         cv2.putText(thresh,'3',(84,116),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
@@ -140,23 +151,28 @@ def retrieveInfo(warpedtag):
         cv2.imshow("perspective",thresh)
         return [region2,region1,region3,region4]
 
-    elif(thresh[55,137][2] == 255):#upper right corner
+    elif(thresh[54,140][2] == 255):#upper right corner
+        cv2.circle(thresh,(140,54),5,(255,0,255),10)
         cv2.putText(thresh,'3',(82,83),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
         cv2.putText(thresh,'2',(112,82),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
         cv2.putText(thresh,'4',(82,116),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
         cv2.putText(thresh,'1',(112,115),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
+        cv2.imshow("perspective",thresh)
         return [region4,region2,region1,region3]
 
     elif(thresh[140,60][2]==255): #lower left corner
+        cv2.circle(thresh,(60,140),5,(0,255,0),5)
         cv2.putText(thresh,'1',(82,83),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
         cv2.putText(thresh,'4',(112,82),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
         cv2.putText(thresh,'2',(84,116),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
         cv2.putText(thresh,'3',(112,115),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
         cv2.imshow("perspective",thresh)
+        print(region1)
         return [region1,region3,region4,region2]
 
     else:
         #lower right corner
+        cv2.circle(thresh,(136,137),5,(0,255,0),5)
         cv2.putText(thresh,'4',(82,83),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
         cv2.putText(thresh,'3',(112,82),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
         cv2.putText(thresh,'1',(84,116),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
