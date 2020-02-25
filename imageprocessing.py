@@ -153,24 +153,26 @@ def retrieveInfo(warpedtag):
 
 
 
-def warpFrame(frame,H,dsize,dc):
-    print("i am eashwar")
-    minPt = (np.amin(dc,axis=0)).astype(int)
-    maxPt = (np.amax(dc,axis=0)).astype(int)
+def warpFrame(frame,H,dsize,dc=None,f = None):
+    minPt = [0,0] if(dc is None) else (np.amin(dc,axis=0)).astype(int)
+    maxPt = ([frame.shape[0]-1,frame.shape[1]-1]) if(dc is None) else (np.amax(dc,axis=0)).astype(int)
 
-    result = np.zeros((dsize[0],dsize[1],frame.shape[2]),dtype ='float32')
+    result = np.zeros((dsize[0],dsize[1],frame.shape[2]),dtype ='uint8')
     for i in range(minPt[0],maxPt[0]+1):
         for j in range(minPt[1],maxPt[1]+1):
             imageCoor = H.dot([i,j,1])
             hi,hj,_= (imageCoor/imageCoor[2]).astype(int)
-            # cv2.circle(frame,(i,j),5,(0,255,0),5)
-            if(hi>=0 and hi< dsize[0] and hj>=0 and hj<dsize[1]):
-                print(i,j)
-                result[hi,hj] = frame[j,i]
+            
+            if(dc is not None):
+                if(hi>=0 and hi< dsize[0] and hj>=0 and hj<dsize[1]):
+                    result[hi,hj] = frame[j,i]
+            else:
+                result[hj,hi] = frame[i,j]
+                if(f is not None):
+                    f[hj,hi] = frame[i,j]
     
-    result = cv2.warpPerspective(frame,H,(200,200))
+    # result = cv2.warpPerspective(frame,H,(200,200))
     return result
-
 
 
 def preprocessing(img):
@@ -178,6 +180,7 @@ def preprocessing(img):
     blur = cv2.GaussianBlur(gray,(5,5),0) 
     edges = cv2.Canny(blur,100,200)
     return edges 
+
 
 
 
