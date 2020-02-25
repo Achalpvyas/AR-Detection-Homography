@@ -109,25 +109,25 @@ def homography(world_coordinates, pixel_coodinates):
 
 # For camera pose estimation
 def projectionMatrix(homographyMatrix):
-    intrinsicParameters =np.array([1406.08415449821,0,0],
+    intrinsicParameters =np.array([[1406.08415449821,0,0],
                                   [2.20679787308599, 1417.99930662800,0],
-                                  [1014.13643417416, 566.347754321696,1])
+                                  [1014.13643417416, 566.347754321696,1]])
 
-    intrinsicParameters = np.transpose()
+    intrinsicParameters = np.transpose(intrinsicParameters)
 
-    B = np.matmul(np.inv(intrinsicParameters), homographyMatrix)
+    B = np.matmul(np.linalg.inv(intrinsicParameters), homographyMatrix)
     if np.linalg.det(B) < 0:
         B = -1*B
     
-    magnitude1 = np.linalg.norm(np.matmul(np.inv(intrinsicParameters),homographyMatrix[:,0]))
-    magnitude2 = np.linalg.norm(np.matmul(np.inv(intrinsicParameters),homographyMatrix[:,1]))
+    magnitude1 = np.linalg.norm(np.matmul(np.linalg.inv(intrinsicParameters),homographyMatrix[:,0]))
+    magnitude2 = np.linalg.norm(np.matmul(np.linalg.inv(intrinsicParameters),homographyMatrix[:,1]))
     lamda = ((magnitude1 + magnitude2)/2)**-1
     r1 = lamda*B[:,0]
     r2 = lamda*B[:,1]
     r3 = np.cross(r1, r2)
     t =  lamda*B[:,2]
 
-    projection_matrix = np.matmul(intrinsicParameters, np.stack(r1,r2,r3,t))
+    projection_matrix = np.matmul(intrinsicParameters, np.stack((r1,r2,r3,t)).T)
     return projection_matrix
 
 
@@ -201,7 +201,7 @@ def warpFrame(frame,H,dsize,dc=None,f = None):
                 if(f is not None):
                     f[hj,hi] = frame[i,j]
     
-    result = cv2.warpPerspective(frame,H,(200,200))
+    # result = cv2.warpPerspective(frame,H,(200,200))
     return result
 
 
@@ -210,8 +210,3 @@ def preprocessing(img):
     blur = cv2.GaussianBlur(gray,(5,5),0) 
     edges = cv2.Canny(blur,100,200)
     return edges 
-
-
-
-
-

@@ -48,6 +48,7 @@ def cubeSurfaceDrawing(frame, cubecoordinates):
 # Function to vitually project the cube
 def virtualCubeProjection(image,video):
     lenaImg = cv2.imread(image)
+    lenaImg = cv2.resize(lenaImg,(100,100),interpolation = cv2.INTER_AREA)
     cap = cv2.VideoCapture(video)
     previousCorners = 0
     firstiteration = 0
@@ -57,6 +58,9 @@ def virtualCubeProjection(image,video):
         frame = cv2.resize(frame, None,fx=0.5, fy=0.5, interpolation = cv2.INTER_CUBIC)
 
         print(lenaImg.shape)
+        
+        #obtaining lena corners to warp image
+        # x,y,_ = lenaImg.shape
         x,y = 511,511
         cubeCorners = np.float32([[0,0], [0,x],[y,0],[x,y]])
         if firstiteration == 0:
@@ -77,6 +81,7 @@ def virtualCubeProjection(image,video):
         cv2.imshow('Cube superimposition',image)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+
     cap.release()
     cv2.destroyAllWindows()
 
