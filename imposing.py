@@ -12,6 +12,7 @@ cap = cv2.VideoCapture('./data/Video_dataset/Tag0.mp4')
 
 while(cap.isOpened()):
     # Reading the video
+    
     ret, frame = cap.read()
     frame = cv2.resize(frame, None,fx=0.5, fy=0.5, interpolation = cv2.INTER_CUBIC)
 
