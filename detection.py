@@ -45,7 +45,7 @@ def detectArTag(pf,frame):
 
     # hull= [cv2.convexHull(contours[i],False) for i in l]
     # cv2.drawContours(frame,hull,-1,(0,255,0),8)
-    filteredContours = [contours[i] for i in l]
+    filteredContours = [contours[l[1]] for i in l]
     cv2.drawContours(frame,filteredContours,-1,(0,0,255),3)
    
     if(len(corners)!=2):
@@ -100,37 +100,61 @@ def homography(world_coordinates, pixel_coodinates):
     return homography_matrix
 
 # For camera pose estimation
-def projectionMatrix(homographyMatrix):
-    intrinsicParameters =np.array([1406.08415449821,0,0],
-                                  [2.20679787308599, 1417.99930662800,0],
-                                  [1014.13643417416, 566.347754321696,1])
+# def projectionMatrix(homographyMatrix):
+    # intrinsicParameters =np.array([1406.08415449821,0,0],
+                                  # [2.20679787308599, 1417.99930662800,0],
+                                  # [1014.13643417416, 566.347754321696,1])
 
-    intrinsicParameters = np.transpose()
+    # intrinsicParameters = np.transpose()
 
-    B = np.matmul(np.inv(intrinsicParameters), homographyMatrix)
-    if np.linalg.det(B) < 0:
-        B = -1*B
+    # B = np.matmul(np.inv(intrinsicParameters), homographyMatrix)
+    # if np.linalg.det(B) < 0:
+        # B = -1*B
     
-    magnitude1 = np.linalg.norm(np.matmul(np.inv(intrinsicParameters),homographyMatrix[:,0]))
-    magnitude2 = np.linalg.norm(np.matmul(np.inv(intrinsicParameters),homographyMatrix[:,1]))
-    lamda = ((magnitude1 + magnitude2)/2)**-1
-    r1 = lamda*B[:,0]
-    r2 = lamda*B[:,1]
-    r3 = np.cross(r1, r2)
-    t =  lamda*B[:,2]
+    # magnitude1 = np.linalg.norm(np.matmul(np.inv(intrinsicParameters),homographyMatrix[:,0]))
+    # magnitude2 = np.linalg.norm(np.matmul(np.inv(intrinsicParameters),homographyMatrix[:,1]))
+    # lamda = ((magnitude1 + magnitude2)/2)**-1
+    # r1 = lamda*B[:,0]
+    # r2 = lamda*B[:,1]
+    # r3 = np.cross(r1, r2)
+    # t =  lamda*B[:,2]
 
-    projection_matrix = np.matmul(intrinsicParameters, np.stack(r1,r2,r3,t))
-    return projection_matrix
-
-
-
+    # projection_matrix = np.matmul(intrinsicParameters, np.stack(r1,r2,r3,t))
+    # return projection_matrix
 
 
 def retrieveInfo(warpedtag):
-    pass
+    _,thresh = cv2.threshold(warpedtag,220,255,cv2.THRESH_BINARY)
+    print(thresh)
+
+    region1 = 1 if(thresh[82,83][2] == 255) else 0
+    region2 = 1 if(thresh[112,82][2] == 255) else 0
+    region3 = 1 if(thresh[84,116][2] == 255) else 0
+    region4 = 1 if(thresh[112,115][2] == 255) else 0
+    cv2.putText(thresh,'1',(82,83),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
+    cv2.putText(thresh,'2',(110,82),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
+    cv2.putText(thresh,'3',(82,116),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
+    cv2.putText(thresh,'4',(110,115),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
+    cv2.imshow("perspective",thresh)
+
+    if(thresh[60,56][2] == 255): #upper left corner
+        return [region4,region3,region1,region2]
+
+    elif(thresh[137,55][2] == 255):#upper right corner
+        return [region2,region4,region3,region1]
+
+    elif(thresh[60,140][2]==255): #lower left corner
+        return [region1,region2,region4,region3]
+
+    else:
+        # (thresh[137,136][2]==255):#lower right corner
+        return [region3,region1,region2,region4]
+
+
 
 def warpFrame(frame,H,dsize,dc):
-    # result = cv2.warpPerspective(frame,H,(200,200))
+    result = cv2.warpPerspective(frame,H,(200,200))
+
     minPt = (np.amin(dc,axis=0)).astype(int)
     maxPt = (np.amax(dc,axis=0)).astype(int)
 
@@ -139,44 +163,52 @@ def warpFrame(frame,H,dsize,dc):
         for j in range(minPt[1],maxPt[1]+1):
             imageCoor = H.dot([i,j,1])
             hi,hj,_= (imageCoor/imageCoor[2]).astype(int)
-            # cv2.circle(frame,(j,i),5,(0,255,0),5)
+            # cv2.circle(frame,(i,j),5,(0,255,0),5)
             if(hi>=0 and hi< dsize[0] and hj>=0 and hj<dsize[1]):
+                print(i,j)
                 result[hi,hj] = frame[j,i]
-   
-    cv2.imshow("perspective",result)
+    
+    result = cv2.warpPerspective(frame,H,(200,200))
     return result
 
 
 def processFrame(frame):
     pf = preprocessing(frame)
-
     tagCoordinates = detectArTag(pf,frame)
-    desiredCoordinates =  np.float32([[0,0],[200,0],[0,200],[200,200]])
+    if(tagCoordinates is not None):
+        desiredCoordinates =  np.float32([[0,0],[200,0],[0,200],[200,200]])
 
-    hmat = homography(tagCoordinates[1],desiredCoordinates)
-    warpedtag = warpFrame(frame,hmat,(200,200),tagCoordinates[1])
+        hmat = homography(tagCoordinates[1],desiredCoordinates)
+        warpedtag = warpFrame(frame,hmat,(200,200),tagCoordinates[1])
 
-    retrieveInfo(warpedtag) 
-    # print(warpedtag)
+        tagId = retrieveInfo(warpedtag) 
+        print(tagId)
+        tagstr = "tag detected - " + ''.join(str(e) for e in tagId)
+        cv2.putText(frame,tagstr,(280,40),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
+    cv2.imshow('AR Tag',frame)
 
 
 def preprocessing(img):
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     blur = cv2.GaussianBlur(gray,(5,5),0) 
     edges = cv2.Canny(blur,100,200)
-    # _,thresh = cv2.threshold(blurred,127,255,cv2.THRESH_BINARY)
     return edges 
 
 
+
+
+######################################################
+#              Reading Video 
+#####################################################
 cap = cv2.VideoCapture('./data/Video_dataset/Tag0.mp4')
 
 while(cap.isOpened()):
     ret, frame = cap.read()
     frame = cv2.resize(frame, None,fx=0.5, fy=0.5, interpolation = cv2.INTER_CUBIC)
+
     processFrame(frame)
 
-    cv2.imshow('AR Tag',frame)
-    if cv2.waitKey(0) & 0xFF == ord('q'):
+    if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
 cap.release()
