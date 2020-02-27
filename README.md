@@ -49,4 +49,3 @@ python3 virtual_cube_projection.py
 ```
 # Sample output:
 ![Output from Tag2 video](report/images/Tag2_cube.JPG)
-
