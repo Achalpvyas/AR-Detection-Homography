@@ -50,6 +50,3 @@ python3 virtual_cube_projection.py
 # Sample output:
 ![Output from Tag2 video](report/images/Tag2_cube.JPG)
 
-
-
-![coldis_lena1](https://user-images.githubusercontent.com/55011289/75399424-3390ff00-58ca-11ea-8ace-ac6c7b584f20.png)
