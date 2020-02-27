@@ -25,6 +25,11 @@ python3 detection.py
 # Sample output:
 Output shown in the video frame:
 
+<a href="https://imgflip.com/gif/3qf8dw"><img src="https://i.imgflip.com/3qf8dw.gif" title="made at imgflip.com"/></a>
+
+<a href="https://imgflip.com/gif/3qf8ig"><img src="https://i.imgflip.com/3qf8ig.gif" title="made at imgflip.com"/></a>
+
+<a href="https://imgflip.com/gif/3qf8mv"><img src="https://i.imgflip.com/3qf8mv.gif" title="made at imgflip.com"/></a>
 
 ![Output from Tag1 video](report/images/tag_id_outputvideo0.JPG)
 
