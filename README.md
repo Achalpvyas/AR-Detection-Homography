@@ -41,6 +41,9 @@ python3 imposing.py
 
 ![Output from Tag1 video](report/images/Tag0_videooutput.JPG)
 
+<a href="https://imgflip.com/gif/3qf5ez"><img src="https://i.imgflip.com/3qf5ez.gif" title="made at imgflip.com"/></a>
+
+
 
 # Steps for superimposing virtual 3-D onto the AR tag
 ```
