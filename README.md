@@ -29,7 +29,7 @@ Involves superimposing Lena image and a virual 3-D cube onto the AR tag.
 cd code
 python3 detection.py
 ```
-# Sample output:
+# Sample output for AR tag detection:
 Output shown in the video frame:
 
 <a href="https://imgflip.com/gif/3qf8dw"><img src="https://i.imgflip.com/3qf8dw.gif" title="made at imgflip.com"/></a>
