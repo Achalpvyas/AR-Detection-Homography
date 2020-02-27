@@ -32,7 +32,7 @@ def processFrame(frame):
 ######################################################
 #              Reading Video 
 #####################################################
-cap = cv2.VideoCapture('./data/Video_dataset/Tag1.mp4')
+cap = cv2.VideoCapture('./data/Video_dataset/Tag0.mp4')
 
 while(cap.isOpened()):
     ret, frame = cap.read()

@@ -134,7 +134,7 @@ def projectionMatrix(homographyMatrix):
 def neighborHoodIsWhite(thresh,pt,isOrientation = True):
     x,y = [-3,3]
     if(isOrientation == True):
-        x,y = [-5,5]
+        x,y = [0,5]
 
     for i in range(x,y):
         for j in range(x,y):
@@ -162,7 +162,7 @@ def retrieveInfo(warpedtag,inbuiltFunction = 0):
         cv2.putText(thresh,'3',(84,116),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
         cv2.putText(thresh,'4',(112,115),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
         if(inbuiltFunction == 1):
-            cv2.imshow("Uses Opencv library",thresh)
+            cv2.imshow("Uses Opencv wrap function",thresh)
         else:
             cv2.imshow("Uses Custom Wrap function",thresh)
         return [region2,region1,region3,region4]
@@ -174,7 +174,7 @@ def retrieveInfo(warpedtag,inbuiltFunction = 0):
         cv2.putText(thresh,'4',(82,116),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
         cv2.putText(thresh,'1',(112,115),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
         if(inbuiltFunction == 1):
-            cv2.imshow("Uses Opencv library",thresh)
+            cv2.imshow("Uses Opencv wrap function",thresh)
         else:
             cv2.imshow("Uses Custom Wrap function",thresh)
         return [region4,region2,region1,region3]
@@ -186,7 +186,7 @@ def retrieveInfo(warpedtag,inbuiltFunction = 0):
         cv2.putText(thresh,'2',(84,116),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
         cv2.putText(thresh,'3',(112,115),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
         if(inbuiltFunction == 1):
-            cv2.imshow("Uses Opencv library",thresh)
+            cv2.imshow("Uses Opencv wrap function",thresh)
         else:
             cv2.imshow("Uses Custom Wrap function",thresh)
         return [region1,region3,region4,region2]
@@ -200,7 +200,7 @@ def retrieveInfo(warpedtag,inbuiltFunction = 0):
         cv2.putText(thresh,'2',(112,115),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
         # (thresh[137,136][2]==255):#lower right corner
         if(inbuiltFunction == 1):
-            cv2.imshow("Uses Opencv library",thresh)
+            cv2.imshow("Uses Opencv wrap function",thresh)
         else:
             cv2.imshow("Uses Custom Wrap function",thresh)
         return [region3,region4,region2,region1]
@@ -215,7 +215,7 @@ def warpFrame(frame,H,dsize,dc=None,f = None):
     for i in range(minPt[0],maxPt[0]+1):
         for j in range(minPt[1],maxPt[1]+1):
             imageCoor = H.dot([i,j,1])
-            hi,hj,_= (imageCoor/imageCoor[2]).astype(int)
+            hj,hi,_= (imageCoor/imageCoor[2]).astype(int)
             
             if(dc is not None):
                 if(hi>=0 and hi< dsize[0] and hj>=0 and hj<dsize[1]):
