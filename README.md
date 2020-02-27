@@ -54,3 +54,9 @@ python3 virtual_cube_projection.py
 ```
 # Sample output:
 ![Output from Tag2 video](report/images/Tag2_cube.JPG)
+
+<a href="https://imgflip.com/gif/3qf6dl"><img src="https://i.imgflip.com/3qf6dl.gif" title="made at imgflip.com"/></a>
+
+<a href="https://imgflip.com/gif/3qf6h0"><img src="https://i.imgflip.com/3qf6h0.gif" title="made at imgflip.com"/></a>
+
+<a href="https://imgflip.com/gif/3qf6j8"><img src="https://i.imgflip.com/3qf6j8.gif" title="made at imgflip.com"/></a>
