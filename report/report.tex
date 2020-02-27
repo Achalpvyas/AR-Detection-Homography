@@ -47,7 +47,8 @@ We have verified the coded homography matrix with in-build functions and got the
     \caption{Output from developed warping function}
     \label{fig:warping_coded}
 \end{figure}
-When we use Opencv we got better results
+We get white spots(holes) as opposed to a uniform color distribution when using the warping function developed. To improve this,
+we look at the neighborhood of neighboring pixels to determine the orientation of the AR tag. However, this is still not robust and as precise as the inbuilt function utilized in opencv, hence the orientation of AR tag shifts sometimes.
 \begin{figure}[h]
     \centering
     \includegraphics[width=8cm]{warping_opencv}
@@ -60,7 +61,6 @@ When we use Opencv we got better results
     Tag id is calculated in clockwise direction starting from 1 to 4
 \end{center}
 \item The snippets of the video is given below. The snippet shows the tag id in blue color.
-\newpage
 \begin{figure}[h]
     \centering
     \includegraphics[width=10cm]{tag_id_outputvideo0}
@@ -76,7 +76,17 @@ When we use Opencv we got better results
 \end{figure}
 
 \end{enumerate}
+\subsection{Difficulties Faced:}
+\begin{enumerate}
+\item The main difficult part was building the custom warping function. Even though we could warp the image, there were many holes present which made the AR tag id decoding difficult.
+\end{enumerate}
+\subsection{Contributions:}
+\begin{enumerate}
+\item The warping function was written by Akwasi.A.Obeng
+\item The sub-functions were written by Akwasi.A.Obeng, Eashwar Sathyamurthy 
+\item The report was prepared by Achal. P. Vyas
 
+\end{enumerate}
 
 
 \section{Problem2 - Tracking}
@@ -111,6 +121,19 @@ When we use Opencv we got better results
     \label{fig:video frame output}
 \end{figure}
 \end{enumerate}
+\subsection{Difficulties Faced:}
+\begin{enumerate}
+\item We faced a few problem in detecting edges. Sometimes the code detected the edges of the white paper and the image would get superimposed on the entire white paper instead of the ARtag.
+\end{enumerate}
+\subsection{Contributions:}
+\begin{enumerate}
+\item The image superimposition function was written by Achal. P. Vyas
+\item The sub-functions were written by Akwasi.A.Obeng, Achal. P. Vyas 
+\item The report was prepared by Eashwar Sathyamurthy
+
+\end{enumerate}
+\newpage
+
 
 \subsection{Problem 2(b) - Placing a virtual cube on the tag}
 \subsection{Procedure for solving problem }
@@ -133,7 +156,6 @@ When we use Opencv we got better results
     \caption{3D cube superimpose on Tag0 video}
     \label{fig:video frame output}
 \end{figure}
-\newpage
 
 \begin{figure}[h]
     \centering
@@ -141,10 +163,25 @@ When we use Opencv we got better results
     \caption{3D cube superimpose on Tag1 video}
     \label{fig:video frame output}
 \end{figure}
+\newpage
 \begin{figure}[h]
     \centering
     \includegraphics[width=8cm]{Tag2_cube}
     \caption{3D cube superimpose on Tag2 video}
     \label{fig:video frame output}
 \end{figure}
+\subsection{Difficulties Faced:}
+\begin{enumerate}
+\item We faced a lot for problem in the projection matrix and converting the 3-D coordinates of the cube to 8 2-D homogenous coordinates.
+\end{enumerate}
+\subsection{Contributions:}
+\begin{enumerate}
+\item The cube superimposition function was written by Eashwar Sathyamurthy
+\item The sub-functions were written by Akwasi.A.Obeng, Eashwar Sathyamurthy 
+\item The report was prepared by Eashwar Sathyamurthy, Achal. P. Vyas
+
+\end{enumerate}
 \end{document}
+
+
+
