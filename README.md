@@ -43,7 +43,9 @@ python3 imposing.py
 
 <a href="https://imgflip.com/gif/3qf5ez"><img src="https://i.imgflip.com/3qf5ez.gif" title="made at imgflip.com"/></a>
 
+<a href="https://imgflip.com/gif/3qf5wq"><img src="https://i.imgflip.com/3qf5wq.gif" title="made at imgflip.com"/></a>
 
+<a href="https://imgflip.com/gif/3qf602"><img src="https://i.imgflip.com/3qf602.gif" title="made at imgflip.com"/></a>
 
 # Steps for superimposing virtual 3-D onto the AR tag
 ```
