@@ -31,7 +31,7 @@ while(cap.isOpened()):
         H = homography(lenaCorners, outerTagCorners)
         warpFrame(lenaImg,H,(frame.shape[0],frame.shape[1]),None,frame)
 
-    cv2.imshow('AR Tag',frame)
+    cv2.imshow('AR Tag Using custom function',frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
