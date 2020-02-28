@@ -1,4 +1,4 @@
-from imageprocessing import *
+from multiple_imageprocessing import *
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
@@ -12,27 +12,35 @@ def processFrame(frame):
     tagCoordinates = detectArTag(pf,frame)
     if(tagCoordinates is not None):
         desiredCoordinates =  np.float32([[0,0],[200,0],[0,200],[200,200]])
-
-        hmat = homography(tagCoordinates[1],desiredCoordinates)
-        warpedtag = cv2.warpPerspective(frame,hmat,(200,200))
-        tagId = retrieveInfo(warpedtag,1) 
-        tagstr = "tag detected - " + ''.join(str(e) for e in tagId)
-        frame2 = frame.copy()
-        cv2.putText(frame2,tagstr,(280,40),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
-        cv2.imshow('AR Tag using inbuilt Opencv wrap function',frame2)
         
-        warpedtag = warpFrame(frame,hmat,(200,200),tagCoordinates[1])
-        tagId = retrieveInfo(warpedtag,0) 
-        tagstr = "tag detected - " + ''.join(str(e) for e in tagId)
-        cv2.putText(frame,tagstr,(280,40),cv2.FONT_HERSHEY_SIMPLEX,0.5,(255,0,0),3)
-        cv2.imshow('AR Tag using custom wrap function',frame2)
+        tagstr = ""
+        for i in range(len(tagCoordinates)):
+            tag = orientation(tagCoordinates[i].copy())
+
+            hmat = homography(tag,desiredCoordinates)
+            warpedtag = cv2.warpPerspective(frame,hmat,(200,200))
+            # warpedtag = warpFrame(frame,hmat,(200,200),tag)
+
+            center = tuple((tag.sum(axis=0)/4 + np.array([30,30])).astype(int)) 
+            print(center)
+             
+            tagId = retrieveInfo(warpedtag,1,i) 
+            tagstr += "tag detected " + str(i) + "-" + ''.join(str(e) for e in tagId) + "\n  \n" 
+            cv2.putText(frame,"tag " + str(i),center, cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,255),5)   
+
+
+        for i, line in enumerate(tagstr.split('\n')):
+                y = 300 + i*20
+                cv2.putText(frame, line, (10, y ), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0),3)   
+
+        cv2.imshow('AR Tag using custom wrap function',frame)
 
 
 
 ######################################################
 #              Reading Video 
 #####################################################
-cap = cv2.VideoCapture('./data/Video_dataset/Tag1.mp4')
+cap = cv2.VideoCapture('./data/Video_dataset/multipleTags.mp4')
 
 while(cap.isOpened()):
     ret, frame = cap.read()
@@ -45,6 +53,9 @@ while(cap.isOpened()):
 
 cap.release()
 cv2.destroyAllWindows()
+
+
+
 
 
 
