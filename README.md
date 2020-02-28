@@ -1,6 +1,13 @@
 ## AR Tag Detection, Decoding and Imposition
 The first part of the project involves detecting and decoding the AR tag code. The second part of the project involves imposing an 2-D image and 2-D cube onto the AR tag.
 
+# Dependencies: 
+Pytho3 
+
+OpenCV-Python
+
+Numpy
+
 # AR tag:
 ![Reference AR Tag to be detected and tracked](data/reference_images/ref_marker.png)
 
@@ -22,7 +29,7 @@ Involves superimposing Lena image and a virual 3-D cube onto the AR tag.
 cd code
 python3 detection.py
 ```
-# Sample output:
+# Sample output for AR tag detection:
 Output shown in the video frame:
 
 <a href="https://imgflip.com/gif/3qf8dw"><img src="https://i.imgflip.com/3qf8dw.gif" title="made at imgflip.com"/></a>
