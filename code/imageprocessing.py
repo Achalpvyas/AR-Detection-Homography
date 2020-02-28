@@ -221,9 +221,9 @@ def warpFrame(frame,H,dsize,dc=None,f = None):
                 if(hi>=0 and hi< dsize[0] and hj>=0 and hj<dsize[1]):
                     result[hi,hj] = frame[j,i]
             else:
-                result[hj,hi] = frame[i,j]
+                result[hi,hj] = frame[i,j]
                 if(f is not None):
-                    f[hj,hi] = frame[i,j]
+                    f[hi,hj] = frame[i,j]
     
     return result
 
