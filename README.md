@@ -20,6 +20,27 @@ The inner 4*4 grid (i.e. after removing the padding) has the orientation depicte
 
 Lastly, the inner-most 2*2 grid (i.e. after removing the padding and the orientation grids) encodes the binary representation of the tag’s ID, which is ordered in the clockwise direction from least significant bit to most significant. So, the top-left square is the least significant bit, and the bottom-left square is the most significant bit.
 
+The process of the edge and corner detection has been implemented in the following way:
+
+   The video stream is first converted into image frames.
+    Detection is performed on each of the frames and then taking the fps as 25, the video is formed again.
+    In the code, the function Edgedetecion has been scripted which takes in the image, the old corners that can been computed and returns the new coordinates of the detected corners. This is repeated for each image frame.
+    The Computer Vision methods made use of in the above implementation are:
+        cv2.cvtColor
+        cv2.medianBlur
+        cv2.threshold
+        cv2.findContours
+        cv2arcLength
+        cv2.approxPolyDP
+        cv2.contourArea
+        cv2.isContourConvex
+    Once the Corners are successfully detected, the perspective transformation of the Tag is performed. The function perspective for tag has been scripted to get the transformed and resized tag image. The methods used for the transformation are:
+        cv2.findHomography
+        cv2.warpPerspective
+        cv2.resize
+    After the above successful transformation the ID of the tag is obtained, the corners of the tag as well as its ID with respect to its original orientation i.e compensated for any camera rotation is obatined.
+    The above process has been written in Python using several functionalities of Computer Vision such as Contours and Corner Detection algorithms.
+
 
 # Dependencies: 
 Pytho3 
