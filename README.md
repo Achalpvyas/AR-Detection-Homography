@@ -2,6 +2,25 @@
 
 The first part of the project involves detecting and decoding the AR tag code. The second part of the project involves imposing an 2-D image and 2-D cube onto the AR tag.
 
+The project focuses on detecting a custom AR Tag (a form of fiducial marker), that is used for obtaining a point of reference in the real world, such as in augmented reality applications. The two aspects to using an AR Tag: detection and tracking, has been implemented in this project. Following are the 2 stages:
+
+Detection: Involves finding the AR Tag from a given image sequence
+Tracking: Involves keeping the tag in “view” throughout the sequence and performing image processing operations based on the tag’s orientation and position (a.k.a. the pose).
+
+Prior to the implementation of image processing on the image sequence, the video is split into its image frames using cv2.VideoCapture, and once the operations are performed on each of the frames, it is appended into an array. This image array is then used to get the video back using cv2.VideoWriter
+
+Edge Detection of AR tag
+
+AR Tags facilitate the appearance of virtual objects, games, and animations within the real world. The analysis of these tags can be done as followed.
+
+ The tag has been decomposed into an 8*8 grid of squares, which includes a padding of 2 squares width along the borders. This allows easy detection of the tag when placed on white background.
+ 
+    
+The inner 4*4 grid (i.e. after removing the padding) has the orientation depicted by a white square in the lower-right corner. This represents the upright position of the tag. This is different for each of the tags provided in the different image sequences.
+
+Lastly, the inner-most 2*2 grid (i.e. after removing the padding and the orientation grids) encodes the binary representation of the tag’s ID, which is ordered in the clockwise direction from least significant bit to most significant. So, the top-left square is the least significant bit, and the bottom-left square is the most significant bit.
+
+
 # Dependencies: 
 Pytho3 
 
